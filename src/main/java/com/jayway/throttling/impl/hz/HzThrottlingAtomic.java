@@ -11,8 +11,7 @@ public class HzThrottlingAtomic implements ThrottlingContext{
 	private HazelcastInstance instance;
 
 	public HzThrottlingAtomic() {
-		Config cfg = new Config();
-		instance = Hazelcast.newHazelcastInstance(cfg);	}
+		instance = Hazelcast.newHazelcastInstance(null);	}
 
 	@Override
 	public ThrottlingService getThrottlingService() {
