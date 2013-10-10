@@ -34,7 +34,8 @@ public class StartWebServer {
     }
 
     public static void start(ThrottlingContext context) {
-        Spark.setPort(8080);
+    	int port = Integer.valueOf(System.getProperty("port", "8080"));
+        Spark.setPort(port);
         final ThrottlingService throttlingService = context.getThrottlingService();
         get(new Route("/hello") {
             @Override
