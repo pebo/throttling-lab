@@ -28,30 +28,23 @@ public class HzThrottlingService implements ThrottlingService {
 	public boolean allow(String account, long cost,
 			Callable<Interval> newInterval) {
 
-		ILock lock = hazelcastInstance.getLock(account);
-		lock.lock();
-		try {
-			IMap<Object, Object> map = hazelcastInstance.getMap(account);
-			Long counter = (Long) map.get("counter");
-			if (counter == null) {
-				logger.debug("{} - Creating new value", account);
-				Interval interval = getInterval(newInterval);
-				map.put("counter", interval.credits - 1, interval.seconds,
-						TimeUnit.SECONDS);
-				return true;
-			}
-
-			if (counter > 0) {
-				logger.debug("{} - decr new value: {}", account, counter--);
-				map.put("counter", counter);
-				return true;
-			}
-			logger.debug("{} - out of credits!", account);
-			return false;
-		} finally {
-			lock.unlock();
+		IMap<Object, Object> map = hazelcastInstance.getMap(account);
+		Long counter = (Long) map.get("counter");
+		if (counter == null) {
+			logger.debug("{} - Creating new value", account);
+			Interval interval = getInterval(newInterval);
+			map.put("counter", interval.credits - 1, interval.seconds,
+					TimeUnit.SECONDS);
+			return true;
 		}
 
+		if (counter > 0) {
+			logger.debug("{} - decr new value: {}", account, counter--);
+			map.put("counter", counter);
+			return true;
+		}
+		logger.debug("{} - out of credits!", account);
+		return false;
 	}
 
 	private Interval getInterval(Callable<Interval> newInterval) {
